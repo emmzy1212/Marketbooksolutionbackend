@@ -2,5 +2,8 @@ services:
   - type: web
     name: marketbook-backend
     env: node
-    buildCommand: npm install
+    buildCommand: unset BUN_INSTALL && npm install
     startCommand: npm start
+    envVars:
+      - key: DISABLE_BUN
+        value: true
