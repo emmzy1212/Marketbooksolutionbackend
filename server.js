@@ -8,6 +8,7 @@ import adminRoutes from './routes/admin.js';
 import notificationRoutes from './routes/notifications.js';
 import uploadRoutes from './routes/upload.js';
 
+
 dotenv.config();
 
 const app = express();
