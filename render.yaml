@@ -2,8 +2,10 @@ services:
   - type: web
     name: marketbook-backend
     env: node
-    buildCommand: unset BUN_INSTALL && npm install
+    plan: free # optional: define your plan (free, starter, etc.)
+    buildCommand: unset BUN_INSTALL && npm install --verbose
     startCommand: npm start
+    nodeVersion: 18.18.2
     envVars:
       - key: DISABLE_BUN
         value: true
