@@ -4,10 +4,13 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// ✅ Step 6: Debug log to verify PDFShift API key is loading
+console.log("🔐 Loaded PDFSHIFT_API_KEY:", process.env.PDFSHIFT_API_KEY?.slice(0, 10) || 'Not found');
+
 const PDFSHIFT_API_KEY = process.env.PDFSHIFT_API_KEY;
 
 if (!PDFSHIFT_API_KEY) {
-  throw new Error("❌ Missing PDFShift API Key. Set PDFSHIFT_API_KEY in your .env file.");
+  throw new Error("Missing PDFShift API Key. Please set PDFSHIFT_API_KEY in your .env or Render environment settings.");
 }
 
 export const generateInvoicePDF = async (item) => {
@@ -89,7 +92,9 @@ export const generateInvoicePDF = async (item) => {
       ${item.customerEmail ? `<p>${item.customerEmail}</p>` : ''}
     </div>
     <table class="items-table">
-      <thead><tr><th>Description</th><th style="width:120px;text-align:right;">Amount</th></tr></thead>
+      <thead>
+        <tr><th>Description</th><th style="width:120px;text-align:right;">Amount</th></tr>
+      </thead>
       <tbody>
         <tr>
           <td><strong>${item.title}</strong>${item.description ? `<br><small>${item.description}</small>` : ''}</td>
@@ -121,7 +126,7 @@ export const generateInvoicePDF = async (item) => {
       {
         responseType: 'arraybuffer',
         auth: { username: PDFSHIFT_API_KEY, password: '' },
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       }
     );
 
@@ -131,23 +136,21 @@ export const generateInvoicePDF = async (item) => {
 
     const base64 = Buffer.from(response.data).toString('base64');
     return `data:application/pdf;base64,${base64}`;
+
   } catch (err) {
     const raw = err?.response?.data;
     let decodedError = raw;
-
-    if (Buffer.isBuffer(raw)) {
+    if (raw instanceof Buffer || Buffer.isBuffer(raw)) {
       try {
         decodedError = JSON.parse(raw.toString('utf-8'));
-      } catch {
+      } catch (e) {
         decodedError = raw.toString('utf-8');
       }
     }
-
     console.error('❌ PDF generation error:', decodedError || err.message);
     throw new Error('Failed to generate invoice PDF');
   }
 };
-
 
 
 
