@@ -112,14 +112,11 @@ export const generateInvoicePDF = async (item) => {
       </body>
       </html>`;
 
-    const response = await axios.post(
-      'https://api.pdfshift.io/v3/convert/html',
+   const response = await axios.post(
+      'https://api.pdfshift.io/v3/convert/html/', // <-- Note trailing slash
       { source: html },
       {
         responseType: 'arraybuffer',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         auth: {
           username: PDFSHIFT_API_KEY,
           password: '',
