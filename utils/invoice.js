@@ -4,13 +4,13 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// ✅ Step 6: Debug log to verify PDFShift API key is loading
+// ✅ Debug log to check if PDFSHIFT_API_KEY is loaded
 console.log("🔐 Loaded PDFSHIFT_API_KEY:", process.env.PDFSHIFT_API_KEY?.slice(0, 10) || 'Not found');
 
 const PDFSHIFT_API_KEY = process.env.PDFSHIFT_API_KEY;
 
 if (!PDFSHIFT_API_KEY) {
-  throw new Error("Missing PDFShift API Key. Please set PDFSHIFT_API_KEY in your .env or Render environment settings.");
+  throw new Error("Missing PDFShift API Key. Please set PDFSHIFT_API_KEY in your .env file");
 }
 
 export const generateInvoicePDF = async (item) => {
@@ -126,7 +126,7 @@ export const generateInvoicePDF = async (item) => {
       {
         responseType: 'arraybuffer',
         auth: { username: PDFSHIFT_API_KEY, password: '' },
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' }
       }
     );
 
@@ -136,7 +136,6 @@ export const generateInvoicePDF = async (item) => {
 
     const base64 = Buffer.from(response.data).toString('base64');
     return `data:application/pdf;base64,${base64}`;
-
   } catch (err) {
     const raw = err?.response?.data;
     let decodedError = raw;
