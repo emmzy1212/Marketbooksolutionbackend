@@ -1,5 +1,8 @@
 import axios from 'axios';
 import { format } from 'date-fns';
+import dotenv from 'dotenv';
+
+dotenv.config(); // Ensure .env is loaded
 
 const PDFSHIFT_API_KEY = process.env.PDFSHIFT_API_KEY;
 
@@ -114,6 +117,9 @@ export const generateInvoicePDF = async (item) => {
       { source: html },
       {
         responseType: 'arraybuffer',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         auth: {
           username: PDFSHIFT_API_KEY,
           password: '',
@@ -124,10 +130,11 @@ export const generateInvoicePDF = async (item) => {
     const base64 = Buffer.from(response.data).toString('base64');
     return `data:application/pdf;base64,${base64}`;
   } catch (err) {
-    console.error('PDF generation error:', err);
+    console.error('PDF generation error:', err.response?.data || err.message);
     throw new Error('Failed to generate invoice PDF');
   }
 };
+
 
 
 

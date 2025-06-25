@@ -1,20 +1,23 @@
+// Always load .env before any other imports
 import dotenv from 'dotenv';
 dotenv.config();
 
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+
+// Routes
 import authRoutes from './routes/auth.js';
 import itemRoutes from './routes/items.js';
 import adminRoutes from './routes/admin.js';
 import notificationRoutes from './routes/notifications.js';
 import uploadRoutes from './routes/upload.js';
 
-
-
-
 const app = express();
 const PORT = process.env.PORT || 5000;
+const MONGODB_URI =
+  process.env.MONGODB_URI ||
+  'mongodb+srv://emmzy32377:Staylow3237@marketbook.ccazrjv.mongodb.net/marketbook';
 
 // Middleware
 app.use(cors());
@@ -33,23 +36,24 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
 });
 
-// Error handling middleware
+// Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://emmzy32377:Staylow3237@marketbook.ccazrjv.mongodb.net/marketbook', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => {
-  console.log('Connected to MongoDB');
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+// MongoDB connection
+mongoose
+  .connect(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log('✅ Connected to MongoDB');
+    app.listen(PORT, () => {
+      console.log(`🚀 Server is running on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error('❌ MongoDB connection error:', error);
   });
-})
-.catch((error) => {
-  console.error('MongoDB connection error:', error);
-});
