@@ -4,14 +4,15 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// ✅ Debug log to check if PDFSHIFT_API_KEY is loaded
-console.log("🔐 Loaded PDFSHIFT_API_KEY:", process.env.PDFSHIFT_API_KEY?.slice(0, 10) || 'Not found');
-
-const PDFSHIFT_API_KEY = process.env.PDFSHIFT_API_KEY;
+const PDFSHIFT_API_KEY = (process.env.PDFSHIFT_API_KEY || '').trim(); // ✅ Remove hidden spaces
 
 if (!PDFSHIFT_API_KEY) {
   throw new Error("Missing PDFShift API Key. Please set PDFSHIFT_API_KEY in your .env file");
 }
+
+// ✅ Debug output
+console.log("🔐 Loaded PDFSHIFT_API_KEY:", PDFSHIFT_API_KEY.slice(0, 10));
+console.log("🧪 Key Length:", PDFSHIFT_API_KEY.length);
 
 export const generateInvoicePDF = async (item) => {
   try {
@@ -136,6 +137,7 @@ export const generateInvoicePDF = async (item) => {
 
     const base64 = Buffer.from(response.data).toString('base64');
     return `data:application/pdf;base64,${base64}`;
+
   } catch (err) {
     const raw = err?.response?.data;
     let decodedError = raw;
@@ -150,6 +152,7 @@ export const generateInvoicePDF = async (item) => {
     throw new Error('Failed to generate invoice PDF');
   }
 };
+
 
 
 
