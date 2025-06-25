@@ -1,6 +1,11 @@
-
 import axios from 'axios';
 import { format } from 'date-fns';
+
+const PDFSHIFT_API_KEY = process.env.PDFSHIFT_API_KEY;
+
+if (!PDFSHIFT_API_KEY) {
+  throw new Error("Missing PDFShift API Key. Please set PDFSHIFT_API_KEY in your .env file");
+}
 
 export const generateInvoicePDF = async (item) => {
   try {
@@ -8,9 +13,9 @@ export const generateInvoicePDF = async (item) => {
       typeof val === 'string' && val.trim() !== '' ? val.trim() : fallback;
 
     const billing = item.user?.billingAddress || {};
-    const street  = getSafe(billing.street, 'Street address not provided');
-    const city    = getSafe(billing.city, 'City');
-    const state   = getSafe(billing.state, 'State');
+    const street = getSafe(billing.street, 'Street address not provided');
+    const city = getSafe(billing.city, 'City');
+    const state = getSafe(billing.state, 'State');
     const zipCode = getSafe(billing.zipCode, '');
     const country = getSafe(billing.country, 'Country');
     const custAddr = item.customerAddress || '';
@@ -68,20 +73,20 @@ export const generateInvoicePDF = async (item) => {
               <h2>INVOICE</h2>
               <p>Invoice #: ${item._id.toString().slice(-8).toUpperCase()}</p>
               <p>Date: ${format(new Date(item.createdAt), 'MM/dd/yyyy')}</p>
-              <p>Due Date: ${format(new Date(Date.now()+30*24*60*60*1000),'MM/dd/yyyy')}</p>
+              <p>Due Date: ${format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'MM/dd/yyyy')}</p>
             </div>
           </div>
           <div class="bill-to">
             <h3>Bill To:</h3>
-            <p><strong>${item.customerName||'Customer'}</strong></p>
-            ${custAddr?`<p>${custAddr}</p>`:''}
-            ${item.customerEmail?`<p>${item.customerEmail}</p>`:''}
+            <p><strong>${item.customerName || 'Customer'}</strong></p>
+            ${custAddr ? `<p>${custAddr}</p>` : ''}
+            ${item.customerEmail ? `<p>${item.customerEmail}</p>` : ''}
           </div>
           <table class="items-table">
             <thead><tr><th>Description</th><th style="width:120px;text-align:right;">Amount</th></tr></thead>
             <tbody>
               <tr>
-                <td><strong>${item.title}</strong>${item.description?`<br><small>${item.description}</small>`:''}</td>
+                <td><strong>${item.title}</strong>${item.description ? `<br><small>${item.description}</small>` : ''}</td>
                 <td style="text-align:right;">${formatNaira(item.amount)}</td>
               </tr>
             </tbody>
@@ -109,19 +114,20 @@ export const generateInvoicePDF = async (item) => {
       { source: html },
       {
         responseType: 'arraybuffer',
-        auth: { username: process.env.PDFSHIFT_API_KEY, password: '' },
+        auth: {
+          username: PDFSHIFT_API_KEY,
+          password: '',
+        },
       }
     );
 
     const base64 = Buffer.from(response.data).toString('base64');
     return `data:application/pdf;base64,${base64}`;
-  }
-  catch (err) {
+  } catch (err) {
     console.error('PDF generation error:', err);
     throw new Error('Failed to generate invoice PDF');
   }
 };
-
 
 
 
